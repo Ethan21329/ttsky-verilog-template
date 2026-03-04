@@ -43,3 +43,13 @@ COCOTB_TEST_MODULES = test
 
 # include cocotb's make rules to take care of the simulator setup
 include $(shell cocotb-config --makefiles)/Makefile.sim
+
+# Direct iverilog simulation (runs tb.v standalone, no cocotb):
+sim: $(SRC_DIR)/$(PROJECT_SOURCES) tb.v
+	iverilog -I$(SRC_DIR) -o sim.out $(SRC_DIR)/$(PROJECT_SOURCES) tb.v
+	vvp sim.out
+
+clean::
+	rm -f sim.out
+
+

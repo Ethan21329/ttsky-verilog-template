@@ -3,6 +3,8 @@
 
 /* This testbench just instantiates the module and makes some convenient wires
    that can be driven / tested by the cocotb test.py.
+   iverilog -o sim.out src/project.v test/tb.v
+   vvp sim.out
 */
 module tb ();
 
@@ -28,7 +30,7 @@ module tb ();
 `endif
 
   // Replace tt_um_example with your module name:
-  tt_um_example user_project (
+  project user_project (
 
       // Include power ports for the Gate Level test:
 `ifdef GL_TEST
@@ -45,5 +47,54 @@ module tb ();
       .clk    (clk),      // clock
       .rst_n  (rst_n)     // not reset
   );
+
+    integer i, j, k, fail, pass;
+    
+
+    task cipher;
+      input [7:0] data;
+      input [6:0] key;
+      input mode;      // 1 encrpyt 0 decrypt
+      reg [7:0] ciphertext;
+      reg [7:0] temp;
+      
+      begin
+        ui_in = data;
+        uio_in = {mode, key};
+        #5;
+        ciphertext = uo_out;
+        #5
+        ui_in = ciphertext;
+        uio_in = {~mode, key};
+        #5
+        temp = uo_out;
+
+        if (data !== temp) begin
+          //$display("\n\033[31mERROR!\033[0m | input %b | key %b | output %b\n", data, key, temp);
+          $write("\033[31m.\033[0m");
+          fail = fail + 1;
+        end
+
+        $write("\033[32m.\033[0m");
+        pass = pass + 1;
+      end
+    endtask
+    
+
+    initial begin
+      pass = 0;
+      fail = 0;
+      $display("Starting test using all possible iterations of inputs\n");
+      for (i = 0; i < 255; i = i + 1) begin
+        for (j = 0; j < 127; j = j + 1) begin
+          for(k = 0; k < 2; k = k + 1) begin
+            cipher(i,j,k);
+          end
+        end
+      end
+      $display("\n\033[32m%d TESTS PASSED\033[0m", pass);
+      $display("\033[31m%d TESTS FAILED\033[0m", fail); 
+      $finish();
+    end
 
 endmodule
