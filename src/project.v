@@ -52,30 +52,38 @@ module project (
     decrypt = right_rotate((x ^ r) - key) ^ key;
   endfunction
 
-  reg [7:0] data_o, temp;
-  wire [7:0] r1, r2, r3, r4;
-  assign r1 = 8'b10001001;
-  assign r2 = 8'b11110111;
-  assign r3 = 8'b11110001;
-  assign r4 = 8'b01110101;
+  wire [7:0] r1 = 8'b10001001;
+  wire [7:0] r2 = 8'b11110111;
+  wire [7:0] r3 = 8'b11110001;
+  wire [7:0] r4 = 8'b01110101;
 
-  
+  reg [7:0] comb_out;
+  reg [7:0] temp;
 
   always @(*) begin
     if (mode) begin
       temp = encrypt(text_i, encrypt_key, r1);
       temp = encrypt(temp, encrypt_key, r2);
       temp = encrypt(temp, encrypt_key, r3);
-      temp = encrypt(temp, encrypt_key, r4);
+      comb_out = encrypt(temp, encrypt_key, r4);
     end else begin
       temp = decrypt(text_i, encrypt_key, r4);
       temp = decrypt(temp, encrypt_key, r3);
       temp = decrypt(temp, encrypt_key, r2);
-      temp = decrypt(temp, encrypt_key, r1);
+      comb_out = decrypt(temp, encrypt_key, r1);
     end
-    data_o = temp;
   end
-  
+
+  reg [7:0] data_o;
+
+  always @(posedge clk) begin
+    if (!rst_n) begin
+      data_o <= 8'h00;
+    end else begin
+      data_o <= comb_out;
+    end
+  end
+
   assign uo_out = data_o;
 
 
