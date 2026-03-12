@@ -21,6 +21,7 @@ module tt_um_encrypt (
 
   // input text
   wire [7:0] text_i = ui_in;
+  
 
   // Encryption key with MSB hard coded to 0
   wire [7:0] encrypt_key = {1'b0, uio_in[6:0]}; 
