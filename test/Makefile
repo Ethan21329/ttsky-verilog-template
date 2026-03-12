@@ -5,10 +5,10 @@
 
 SIM        ?= icarus
 TOPLEVEL_LANG ?= verilog
-VERILOG_SOURCES = $(PWD)/../src/project.v
+VERILOG_SOURCES = $(PWD)/../src/encrypt.v
 WAVES = 1
 
-TOPLEVEL = project
+TOPLEVEL = tt_um_encrypt
 MODULE   = test
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
